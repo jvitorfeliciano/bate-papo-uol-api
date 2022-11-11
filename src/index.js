@@ -96,6 +96,17 @@ app.post("/messages", async (req, res) => {
     if (!participantStatus) {
       return res.sendStatus(422);
     }
+
+    const formattedMessage = {
+      from: user,
+      to,
+      text,
+      type,
+      time: dayjs().format("HH:mm:ss"),
+    };
+
+    await db.collection("posts").insertOne(formattedMessage);
+    res.sendStatus(201);
   } catch (err) {
     res.sendStatus(500);
   }
@@ -104,4 +115,3 @@ app.post("/messages", async (req, res) => {
 app.listen(5000, () => {
   console.log("Server running in port 5000");
 });
-
