@@ -151,10 +151,19 @@ app.post("/status", async (req, res) => {
     const participant = await db
       .collection("participants")
       .findOne({ name: user });
-
+   console.log(participant)
     if (!participant) {
       return res.sendStatus(404);
     }
+    const id = participant._id;
+    await db
+      .collection("participants")
+      .updateOne(
+        { _id: id },
+        { $set: { ...participant, lastStatus: Date.now() } }
+      );
+      console.log(participant)
+    res.sendStatus(200);
   } catch (err) {
     res.sendStatus(500);
   }
