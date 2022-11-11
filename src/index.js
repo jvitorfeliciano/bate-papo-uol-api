@@ -18,6 +18,41 @@ mongoClient.connect().then(() => {
   db = mongoClient.db("batepapo_uol_database");
 });
 
-app.listen(5000, ()=>{
-    console.log("Server running in port 5000")
-})
+app.listen(5000, () => {
+  console.log("Server running in port 5000");
+});
+
+const userSchema = Joi.object({
+  name: Joi.string().required(),
+});
+
+const messageSchema = Joi.object({
+  to: Joi.string().required(),
+  text: Joi.string().required(),
+  type: Joi.string().required().valid("private_message", "message"),
+});
+
+app.post("/participants", async (req, res) => {
+  const { name } = req.body;
+  const validation = userSchema.validate({ name });
+  const { error } = validation;
+  if (error) {
+    return res.sendStatus(422);
+  }
+  console.log({ name });
+
+  try {
+    const user = await db.collection("participants").findOne({ name });
+ 
+    if(user){
+        return res.sendStatus(409);
+    }
+    
+    await db.collection("participants").insertOne({ name, lastStatus: Date.now() });
+    
+  } catch (err) {
+    res.sendStatus(500);
+  }
+});
+
+
