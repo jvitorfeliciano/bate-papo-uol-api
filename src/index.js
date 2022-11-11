@@ -81,15 +81,27 @@ app.post("/messages", async (req, res) => {
   if (userValidation.error) {
     return res.sendStatus(422);
   }
- 
-  const messageValidation = messageSchema.validate({to, text, type});
-  
-  if(messageValidation.error){
-    return res.sendStatus(422);
-  } 
 
+  const messageValidation = messageSchema.validate({ to, text, type });
+
+  if (messageValidation.error) {
+    return res.sendStatus(422);
+  }
+
+  try {
+    const participantStatus = await db
+      .collection("participants")
+      .findOne({ name: user });
+
+    if (!participantStatus) {
+      return res.sendStatus(422);
+    }
+  } catch (err) {
+    res.sendStatus(500);
+  }
 });
 
 app.listen(5000, () => {
   console.log("Server running in port 5000");
 });
+
