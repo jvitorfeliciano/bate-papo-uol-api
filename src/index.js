@@ -123,7 +123,6 @@ app.get("/messages", async (req, res) => {
   }
 
   try {
-
     const posts = await db.collection("posts").find().toArray();
     const filteredPosts = posts.filter(
       (obj) => obj.to === "Todos" || obj.to === user || obj.from === user
@@ -132,8 +131,9 @@ app.get("/messages", async (req, res) => {
     if (limit) {
       const latestFilteredPosts = filteredPosts.reverse();
       res.send(latestFilteredPosts.slice(0, parseInt(limit)).reverse());
-    } 
-
+    } else {
+      res.send(filteredPosts);
+    }
   } catch (err) {
     res.sendStatus(500);
   }
