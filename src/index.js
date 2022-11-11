@@ -75,6 +75,19 @@ app.get("/participants", async (req, res) => {
   }
 });
 
+app.post("/messages", async (req, res) => {
+  const {user} = req.headers;
+   
+  const userValidation = userSchema.validate({name:user});
+
+  const {error} = userValidation;
+
+  if(error){
+    return res.sendStatus(422)
+  }
+  
+  console.log(user);
+})
 app.listen(5000, () => {
   console.log("Server running in port 5000");
 });
