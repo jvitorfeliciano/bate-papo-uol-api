@@ -112,6 +112,33 @@ app.post("/messages", async (req, res) => {
   }
 });
 
+app.get("/messages", async (req, res) => {
+  const { limit } = req.query;
+  const { user } = req.headers;
+
+  const userValidation = userSchema.validate({ name: user });
+
+  if (userValidation.error) {
+    return res.sendStatus(422);
+  }
+
+  try {
+
+    const posts = await db.collection("posts").find().toArray();
+    const filteredPosts = posts.filter(
+      (obj) => obj.to === "Todos" || obj.to === user || obj.from === user
+    );
+
+    if (limit) {
+      const latestFilteredPosts = filteredPosts.reverse();
+      res.send(latestFilteredPosts.slice(0, parseInt(limit)).reverse());
+    } 
+
+  } catch (err) {
+    res.sendStatus(500);
+  }
+});
+
 app.listen(5000, () => {
   console.log("Server running in port 5000");
 });
