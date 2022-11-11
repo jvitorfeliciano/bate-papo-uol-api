@@ -18,10 +18,6 @@ mongoClient.connect().then(() => {
   db = mongoClient.db("batepapo_uol_database");
 });
 
-app.listen(5000, () => {
-  console.log("Server running in port 5000");
-});
-
 const userSchema = Joi.object({
   name: Joi.string().required(),
 });
@@ -43,16 +39,31 @@ app.post("/participants", async (req, res) => {
 
   try {
     const user = await db.collection("participants").findOne({ name });
- 
-    if(user){
-        return res.sendStatus(409);
+
+    if (user) {
+      return res.sendStatus(409);
     }
-    
-    await db.collection("participants").insertOne({ name, lastStatus: Date.now() });
-    
+
+    await db
+      .collection("participants")
+      .insertOne({ name, lastStatus: Date.now() });
+
+    const arrivalMessage = {
+      from: name,
+      to: "Todos",
+      text: "entra na sala...",
+      type: "status",
+      time: dayjs().format("HH:mm:ss"),
+    };
+
+    await db.collection("posts").insertOne(arrivalMessage);
+
+    res.sendStatus(201);
   } catch (err) {
     res.sendStatus(500);
   }
 });
 
-
+app.listen(5000, () => {
+  console.log("Server running in port 5000");
+});
