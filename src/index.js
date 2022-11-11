@@ -65,10 +65,7 @@ app.post("/participants", async (req, res) => {
 
 app.get("/participants", async (req, res) => {
   try {
-    const participants = await db
-      .collection("participants")
-      .find()
-      .toArray();
+    const participants = await db.collection("participants").find().toArray();
     res.send(participants);
   } catch {
     res.sendStatus(500);
@@ -76,18 +73,23 @@ app.get("/participants", async (req, res) => {
 });
 
 app.post("/messages", async (req, res) => {
-  const {user} = req.headers;
-   
-  const userValidation = userSchema.validate({name:user});
+  const { user } = req.headers;
+  const { to, text, type } = req.body;
 
-  const {error} = userValidation;
+  const userValidation = userSchema.validate({ name: user });
 
-  if(error){
-    return res.sendStatus(422)
+  if (userValidation.error) {
+    return res.sendStatus(422);
   }
+ 
+  const messageValidation = messageSchema.validate({to, text, type});
   
-  console.log(user);
-})
+  if(messageValidation.error){
+    return res.sendStatus(422);
+  } 
+
+});
+
 app.listen(5000, () => {
   console.log("Server running in port 5000");
 });
