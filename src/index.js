@@ -35,7 +35,6 @@ app.post("/participants", async (req, res) => {
   if (error) {
     return res.sendStatus(422);
   }
-  console.log({ name });
 
   try {
     const user = await db.collection("participants").findOne({ name });
@@ -60,6 +59,18 @@ app.post("/participants", async (req, res) => {
 
     res.sendStatus(201);
   } catch (err) {
+    res.sendStatus(500);
+  }
+});
+
+app.get("/participants", async (req, res) => {
+  try {
+    const participants = await db
+      .collection("participants")
+      .find()
+      .toArray();
+    res.send(participants);
+  } catch {
     res.sendStatus(500);
   }
 });
