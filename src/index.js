@@ -224,10 +224,10 @@ app.delete("/messages/:message_id", async (req, res) => {
   }
 });
 
-app.put("/messages/:message_id", (req, res) => {
+app.put("/messages/:message_id", async (req, res) => {
   const { user } = req.headers;
   const { to, text, type } = req.body;
-  const {message_id} =req.params;
+  const { message_id } = req.params;
 
   const userValidation = userSchema.validate({ name: user });
 
@@ -240,10 +240,21 @@ app.put("/messages/:message_id", (req, res) => {
   if (messageValidation.error) {
     return res.sendStatus(422);
   }
+
+  try {
+    const message = await db
+      .collection("posts")
+      .findOne({ _id: ObjectId(message_id) });
+
+    if (!message) {
+      return res.sendStatus(404);
+    }
+    
+  } catch (err) {
+    res.sendStatus(500);
+  }
 });
 
 app.listen(5000, () => {
   console.log("Server running in port 5000");
 });
-
-
