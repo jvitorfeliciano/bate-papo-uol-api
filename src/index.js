@@ -209,7 +209,7 @@ app.delete("/messages/:message_id", async (req, res) => {
     const message = await db
       .collection("posts")
       .findOne({ _id: ObjectId(message_id) });
-    console.log(message);
+       console.log(message);
 
     if (!message) {
       return res.sendStatus(404);
@@ -217,6 +217,9 @@ app.delete("/messages/:message_id", async (req, res) => {
     if (message.from !== user) {
       return res.sendStatus(401);
     }
+
+    await db.collection("posts").deleteOne({_id: ObjectId(message_id)});
+    
   } catch (err) {
     res.sendStatus(500);
     console.log("lascouu");
