@@ -162,7 +162,6 @@ app.post("/status", async (req, res) => {
         { _id: id },
         { $set: { ...participant, lastStatus: Date.now() } }
       );
-    console.log(participant);
     res.sendStatus(200);
   } catch (err) {
     res.sendStatus(500);
@@ -253,8 +252,14 @@ app.put("/messages/:message_id", async (req, res) => {
     if (message.from !== user) {
       return res.sendStatus(401);
     }
-
+    const test = await db
+      .collection("posts")
+      .updateOne(
+        { _id: ObjectId(message_id) },
+        { $set: { ...message, to, text, type } }
+      );
   } catch (err) {
+    console.log(err);
     res.sendStatus(500);
   }
 });
