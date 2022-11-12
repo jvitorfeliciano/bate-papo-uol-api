@@ -202,6 +202,14 @@ async function expellInactiveParticipants() {
 
 setInterval(expellInactiveParticipants, 15000);
 
+app.delete("/messages/:message_id", (req,res)=>{
+   const {user} = req.headers;
+   const {message_id} = req.params;
+   console.log(user, req.headers,message_id)
+})
+
+
 app.listen(5000, () => {
   console.log("Server running in port 5000");
 });
+
