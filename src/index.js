@@ -224,9 +224,10 @@ app.delete("/messages/:message_id", async (req, res) => {
   }
 });
 
-app.put("/messages/message_id", (req, res) => {
+app.put("/messages/:message_id", (req, res) => {
   const { user } = req.headers;
   const { to, text, type } = req.body;
+  const {message_id} =req.params;
 
   const userValidation = userSchema.validate({ name: user });
 
