@@ -249,7 +249,11 @@ app.put("/messages/:message_id", async (req, res) => {
     if (!message) {
       return res.sendStatus(404);
     }
-    
+
+    if (message.from !== user) {
+      return res.sendStatus(401);
+    }
+
   } catch (err) {
     res.sendStatus(500);
   }
