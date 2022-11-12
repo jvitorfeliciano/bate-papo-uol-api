@@ -1,5 +1,5 @@
 import express from "express";
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 import cors from "cors";
 import Joi from "joi";
 import dotenv from "dotenv";
@@ -202,14 +202,27 @@ async function expellInactiveParticipants() {
 
 setInterval(expellInactiveParticipants, 15000);
 
-app.delete("/messages/:message_id", (req,res)=>{
-   const {user} = req.headers;
-   const {message_id} = req.params;
-   console.log(user, req.headers,message_id)
-})
+app.delete("/messages/:message_id", async (req, res) => {
+  const { user } = req.headers;
+  const { message_id } = req.params;
+  try {
+    const message = await db
+      .collection("posts")
+      .findOne({ _id: ObjectId(message_id) });
+    console.log(message);
 
+    if (!message) {
+      return res.sendStatus(404);
+    }
+    if (message.from !== user) {
+      return res.sendStatus(401);
+    }
+  } catch (err) {
+    res.sendStatus(500);
+    console.log("lascouu");
+  }
+});
 
 app.listen(5000, () => {
   console.log("Server running in port 5000");
 });
-
