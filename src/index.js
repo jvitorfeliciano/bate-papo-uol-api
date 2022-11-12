@@ -209,7 +209,7 @@ app.delete("/messages/:message_id", async (req, res) => {
     const message = await db
       .collection("posts")
       .findOne({ _id: ObjectId(message_id) });
-       console.log(message);
+    console.log(message);
 
     if (!message) {
       return res.sendStatus(404);
@@ -218,14 +218,31 @@ app.delete("/messages/:message_id", async (req, res) => {
       return res.sendStatus(401);
     }
 
-    await db.collection("posts").deleteOne({_id: ObjectId(message_id)});
-    
+    await db.collection("posts").deleteOne({ _id: ObjectId(message_id) });
   } catch (err) {
     res.sendStatus(500);
-    console.log("lascouu");
+  }
+});
+
+app.put("/messages/message_id", (req, res) => {
+  const { user } = req.headers;
+  const { to, text, type } = req.body;
+
+  const userValidation = userSchema.validate({ name: user });
+
+  if (userValidation.error) {
+    return res.sendStatus(422);
+  }
+
+  const messageValidation = messageSchema.validate({ to, text, type });
+
+  if (messageValidation.error) {
+    return res.sendStatus(422);
   }
 });
 
 app.listen(5000, () => {
   console.log("Server running in port 5000");
 });
+
+
