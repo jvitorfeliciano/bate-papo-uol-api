@@ -169,18 +169,17 @@ app.post("/status", async (req, res) => {
 });
 
 async function expellInactiveParticipants() {
-  let timeNow = Date.now();
-
   try {
     const participants = await db.collection("participants").find().toArray();
 
     participants.forEach(async (participant) => {
+      let timeNow = Date.now();
       const id = participant._id;
       const lastStatus = participant.lastStatus;
       const name = participant.name;
-      const seconds = (timeNow - lastStatus) / 1000;
+      const differenceInSeconds = (timeNow - lastStatus) / 1000;
 
-      if (seconds > 10) {
+      if (differenceInSeconds > 10) {
         await db.collection("participants").deleteOne({ _id: id });
 
         const formattedMessage = {
@@ -195,7 +194,7 @@ async function expellInactiveParticipants() {
       }
     });
   } catch (err) {
-    res.sendStatus(500);
+    console.log(err)
   }
 }
 
@@ -204,6 +203,13 @@ setInterval(expellInactiveParticipants, 15000);
 app.delete("/messages/:message_id", async (req, res) => {
   const { user } = req.headers;
   const { message_id } = req.params;
+
+  const userValidation = userSchema.validate({ name: user });
+
+  if (userValidation.error) {
+    return res.sendStatus(422);
+  }
+  
   try {
     const message = await db
       .collection("posts")
@@ -218,6 +224,7 @@ app.delete("/messages/:message_id", async (req, res) => {
     }
 
     await db.collection("posts").deleteOne({ _id: ObjectId(message_id) });
+    res.sendStatus(200);
   } catch (err) {
     res.sendStatus(500);
   }
@@ -258,6 +265,7 @@ app.put("/messages/:message_id", async (req, res) => {
         { _id: ObjectId(message_id) },
         { $set: { ...message, to, text, type } }
       );
+    res.sendStatus(200);
   } catch (err) {
     console.log(err);
     res.sendStatus(500);
@@ -267,4 +275,5 @@ app.put("/messages/:message_id", async (req, res) => {
 app.listen(5000, () => {
   console.log("Server running in port 5000");
 });
+
 
