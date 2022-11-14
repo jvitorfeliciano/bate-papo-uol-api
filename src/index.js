@@ -151,17 +151,13 @@ app.post("/status", async (req, res) => {
     const participant = await db
       .collection("participants")
       .findOne({ name: user });
-    console.log(participant);
     if (!participant) {
       return res.sendStatus(404);
     }
     const id = participant._id;
     await db
       .collection("participants")
-      .updateOne(
-        { _id: id },
-        { $set: { ...participant, lastStatus: Date.now() } }
-      );
+      .updateOne({ _id: id }, { $set: { lastStatus: Date.now() } });
     res.sendStatus(200);
   } catch (err) {
     res.sendStatus(500);
@@ -194,7 +190,7 @@ async function expellInactiveParticipants() {
       }
     });
   } catch (err) {
-    console.log(err)
+    console.log(err);
   }
 }
 
@@ -209,7 +205,7 @@ app.delete("/messages/:message_id", async (req, res) => {
   if (userValidation.error) {
     return res.sendStatus(422);
   }
-  
+
   try {
     const message = await db
       .collection("posts")
@@ -259,12 +255,9 @@ app.put("/messages/:message_id", async (req, res) => {
     if (message.from !== user) {
       return res.sendStatus(401);
     }
-    const test = await db
+    await db
       .collection("posts")
-      .updateOne(
-        { _id: ObjectId(message_id) },
-        { $set: { ...message, to, text, type } }
-      );
+      .updateOne({ _id: ObjectId(message_id) }, { $set: { to, text, type } });
     res.sendStatus(200);
   } catch (err) {
     console.log(err);
@@ -275,5 +268,3 @@ app.put("/messages/:message_id", async (req, res) => {
 app.listen(5000, () => {
   console.log("Server running in port 5000");
 });
-
-
